@@ -16,9 +16,6 @@ const server = new ApolloServer({
   dataSources: () => ({
     pokemonDB: new pokemonDB({ store }),
   }),
-  engine: {
-    reportSchema: true,
-  },
 })
 
 // The `listen` method launches a web server.
