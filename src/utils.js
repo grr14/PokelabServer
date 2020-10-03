@@ -25,13 +25,14 @@ module.exports = {
 }
 
 module.exports.createStore = () => {
-  const db = new Sequelize({
-    database: process.env.DB_NAME,
+  const db = new Sequelize(process.env.DB_LINK, {
+    /*database: process.env.DB_NAME,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    port: process.env.DB_PORT,*/
     dialect: "postgres",
+    protocol: "postgres",
     dialectOptions: {
       ssl: {
         require: true,
