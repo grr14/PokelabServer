@@ -607,7 +607,7 @@ class pokemonDB extends DataSource {
         (loc) => loc.id === el.location_area_id
       )
 
-      const idxPokemon = pokemons.findIndex((pok) => pok?.id === el.pokemon_id)
+      const idxPokemon = pokemons.findIndex((pok) => pok.id === el.pokemon_id)
       if (idxPokemon === -1) {
         return null
       }
