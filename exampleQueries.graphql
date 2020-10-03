@@ -1,0 +1,127 @@
+query getPokemonById($id: Int!) {
+  pokemon(id: $id) {
+    id
+    identifier
+    species_id
+    height
+    weight
+    base_experience
+    ordre
+    is_default
+    type_1
+    type_2
+    abilities {
+      id
+      identifier
+      is_hidden
+    }
+    evolve_from_pokemon_id
+    evolution_chain_id
+    category
+    picture
+    gender_distribution
+    capture_rate
+    base_happiness
+    growth_rate
+    pokedex_numbers {
+      id
+      pokemon_number
+    }
+  }
+}
+
+query abilityById($id: Int) {
+  abilityById(id: $id) {
+    id
+    identifier
+    effect
+    flavor_textes {
+      text
+      version_group
+    }
+  }
+}
+
+query moveById($id: Int) {
+  moveById(id: $id) {
+    id
+    identifier
+    generation_id
+    type_id
+    power
+    pp
+    accuracy
+    priority
+    target_id
+    damage_class_id
+    effect_id
+    effect_chance
+    flavor_textes {
+      text
+      version_group
+    }
+    detailed_effect {
+      text
+    }
+  }
+}
+
+query pokemonsInRange($firstId: Int, $lastId: Int) {
+  pokemonsInRange(firstId: $firstId, lastId: $lastId) {
+    id
+    identifier
+    type_1
+    type_2
+    picture
+  }
+}
+
+query pokemonEvolveChain($id: Int) {
+    pokemonEvolveChain(id: $id) {
+      id
+      identifier
+      type_1
+      type_2
+      evolve_from_pokemon_id
+      evolution_chain_id
+      picture
+      evolution {
+        evolved_pokemon_id
+        evolution_trigger
+        trigger_item
+        minimum_level
+        gender
+        location
+        held_item
+        time_of_day
+        known_move
+        known_move_type
+        minimum_happiness
+        minimum_beauty
+        minimum_affection
+        physical_stats
+        pokemon_in_party
+        pokemon_type_in_party
+        trading_species
+        overworld_rain
+        device_upside_down
+      }
+    }
+  }
+
+query EncountersByPokemonAndVersion($pokemonId: Int,$versionId: Int) {
+  encountersByPokemonAndVersion(pokemonId: $pokemonId,versionId: $versionId) {
+    id
+    version
+    location {
+      id
+      region
+      identifier
+    }
+    method
+    level_min
+    level_max
+    rarity
+  }
+}
+
