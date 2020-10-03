@@ -11,6 +11,8 @@ const store = createStore()
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  introspection: true,
+  playground: true,
   dataSources: () => ({
     pokemonDB: new pokemonDB({ store }),
   }),
