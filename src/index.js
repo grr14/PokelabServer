@@ -16,6 +16,10 @@ const server = new ApolloServer({
   dataSources: () => ({
     pokemonDB: new pokemonDB({ store }),
   }),
+  engine: {
+    apiKey: process.env.APOLLO_KEY,
+    graphVariant: "production",
+  },
 })
 
 // The `listen` method launches a web server.
