@@ -104,8 +104,6 @@ class pokemonDB extends DataSource {
       },
     })
 
-    console.log(`${JSON.stringify(pokemons)}`)
-
     return pokemons
   }
 
