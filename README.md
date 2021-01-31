@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a graphql server filled with informations about Pokemon fetched from the [Pokemon API](https://pokeapi.co/).
+This is a graphql server I made filled with informations about Pokemon fetched from a postgres Database.
 The server is written in javascript using the [Apollo Data Graph Platform](https://www.apollographql.com/).
 
 ## How to use
