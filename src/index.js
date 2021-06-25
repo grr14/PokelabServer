@@ -3,7 +3,7 @@ require("dotenv").config()
 const { ApolloServer } = require("apollo-server")
 const typeDefs = require("./schema")
 const resolvers = require("./resolvers")
-const pokemonDB = require("./datasources/pokemonDB")
+const postgresDB = require("./datasources/postgresDB")
 
 const { createStore } = require("./utils")
 const store = createStore()
@@ -14,7 +14,7 @@ const server = new ApolloServer({
   introspection: true,
   playground: true,
   dataSources: () => ({
-    pokemonDB: new pokemonDB({ store }),
+    postgresDB: new postgresDB({ store }),
   }),
   engine: {
     apiKey: process.env.APOLLO_KEY,

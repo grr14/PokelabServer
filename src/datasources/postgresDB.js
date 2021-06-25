@@ -12,7 +12,7 @@ const NB_VERSION_GROUP = 18
 const NB_LOCATIONS = 798
 const NB_VERSIONS = 30
 
-class pokemonDB extends DataSource {
+class postgresDB extends DataSource {
   constructor({ store }) {
     super()
     this.store = store
@@ -117,6 +117,7 @@ class pokemonDB extends DataSource {
       where: {
         [Op.or]: [{ type_1: id }, { type_2: id }],
       },
+      order: [["id", "ASC"]],
     })
 
     return pokemons
@@ -227,8 +228,10 @@ class pokemonDB extends DataSource {
   }
 
   /* select id, identifier,... from pokemon where
-  abilities LIKE 'id%' OR abilities LIKE '%,id,%' OR
-  abilities LIKE '%,id' or abilites = 'id;*/
+  abilities LIKE 'id%' 
+  OR abilities LIKE '%,id,%'
+  OR abilities LIKE '%,id'
+  OR abilites = 'id;*/
   async getPokemonByAbilityId({ id }) {
     if (id > NB_ABILITIES) {
       return null
@@ -676,6 +679,28 @@ class pokemonDB extends DataSource {
       return a.location.location_area - b.location.location_area
     })
   }
+
+  async getUser({ id }) {
+    let user = await this.store.user.findOne({
+      attributes: [
+        "id",
+        "identifier",
+        "mail",
+        "password_salt",
+        "password_hash",
+        "date_joined",
+      ],
+      where: { id: id },
+    })
+
+    console.log(user.dataValues.date_joined)
+    let date =
+      user.dataValues.date_joined.toLocaleDateString() +
+      " " +
+      user.dataValues.date_joined.toLocaleTimeString()
+    console.log(date)
+    return { ...user.dataValues, date_joined: date }
+  }
 }
 
-module.exports = pokemonDB
+module.exports = postgresDB
