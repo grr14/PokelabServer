@@ -26,8 +26,8 @@ typeDefs = gql`
 
   type Mutation {
     registerUser(
-      identifier: String
-      email: String!
+      identifier: String!
+      mail: String!
       password: String!
     ): AuthPayload!
     login(identifier: String!, password: String!): AuthPayload!
@@ -169,7 +169,7 @@ typeDefs = gql`
 
   type User {
     id: Int!
-    identifier: String
+    identifier: String!
     mail: String!
     password_salt: String
     password_hash: String

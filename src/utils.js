@@ -516,9 +516,10 @@ module.exports.createStore = () => {
     },
   })
 
-  const user = db.define("user", {
+  const users = db.define("users", {
     id: {
       type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
       allowNull: false,
     },
@@ -564,6 +565,6 @@ module.exports.createStore = () => {
     encounter_slots,
     location_areas,
     locations,
-    user,
+    users,
   }
 }

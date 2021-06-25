@@ -2,6 +2,8 @@ const { DataSource } = require("apollo-datasource")
 const { parse, isEmptyArray } = require("../utils")
 const { Op } = require("sequelize")
 const _ = require("lodash")
+const bcrypt = require("bcryptjs")
+const jsonwebtoken = require("jsonwebtoken")
 
 const NB_POKEMON = 807
 const NB_TYPES = 18
@@ -681,7 +683,7 @@ class postgresDB extends DataSource {
   }
 
   async getUser({ id }) {
-    let user = await this.store.user.findOne({
+    let user = await this.store.users.findOne({
       attributes: [
         "id",
         "identifier",
@@ -693,13 +695,95 @@ class postgresDB extends DataSource {
       where: { id: id },
     })
 
-    console.log(user.dataValues.date_joined)
     let date =
       user.dataValues.date_joined.toLocaleDateString() +
       " " +
       user.dataValues.date_joined.toLocaleTimeString()
-    console.log(date)
     return { ...user.dataValues, date_joined: date }
+  }
+
+  async registerUser({ identifier, mail, password }) {
+    try {
+      const salt = await bcrypt.genSalt(10)
+      /*console.log(`identifier=${identifier}`)
+      console.log(`mail=${mail}`)
+      console.log(`password=${password}`)
+      console.log(`salt=${salt}`)*/
+      const user = await this.store.users.create({
+        identifier,
+        mail,
+        password_hash: await bcrypt.hash(password, salt),
+        password_salt: salt,
+      })
+
+      //console.log(user.dataValues)
+
+      let date =
+        user.dataValues.date_joined.toLocaleDateString() +
+        " " +
+        user.dataValues.date_joined.toLocaleTimeString("fr-FR")
+
+      const token = jsonwebtoken.sign(
+        { id: user.id, identifier: user.identifier },
+        process.env.JWT_SECRET,
+        { expiresIn: "1y" }
+      )
+
+      console.log(token)
+
+      return {
+        token: token,
+        user: {
+          id: user.id,
+          identifier: user.identifier,
+          mail: user.mail,
+          password_hash: user.password_hash,
+          password_salt: user.password_salt,
+          date_joined: date,
+        },
+      } /* AuthPayload*/
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async login({ identifier, password }) {
+    try {
+      const user = await this.store.users.findOne({
+        where: { identifier },
+      })
+      if (!user) {
+        throw new Error("No user with that email")
+      }
+
+      let date =
+        user.dataValues.date_joined.toLocaleDateString() +
+        " " +
+        user.dataValues.date_joined.toLocaleTimeString("fr-FR")
+
+      //console.log(user.dataValues)
+
+      console.log(`password=${password}`)
+      console.log(`hash=${user.dataValues.password_hash}`)
+
+      const isValid = await bcrypt.compare(
+        password,
+        user.dataValues.password_hash
+      )
+      if (!isValid) {
+        throw new Error("Incorrect password")
+      }
+
+      const token = jsonwebtoken.sign(
+        { id: user.id, identifier: user.identifier },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      )
+
+      return { token: token, user: { ...user.dataValues, date_joined: date } }
+    } catch (error) {
+      throw new Error(error.message)
+    }
   }
 }
 

@@ -69,4 +69,14 @@ module.exports = {
     user: async (_, { id }, { dataSources }, __) =>
       dataSources.postgresDB.getUser({ id }),
   },
+  Mutation: {
+    registerUser: async (
+      _,
+      { identifier, mail, password },
+      { dataSources },
+      __
+    ) => dataSources.postgresDB.registerUser({ identifier, mail, password }),
+    login: async (_, { identifier, password }, { dataSources }, __) =>
+      dataSources.postgresDB.login({ identifier, password }),
+  },
 }
