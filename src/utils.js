@@ -516,6 +516,35 @@ module.exports.createStore = () => {
     },
   })
 
+  const user = db.define("user", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+    },
+    identifier: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    mail: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_salt: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_hash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date_joined: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      allowNull: false,
+    },
+  })
+
   return {
     db,
     pokemon,
@@ -535,5 +564,6 @@ module.exports.createStore = () => {
     encounter_slots,
     location_areas,
     locations,
+    user,
   }
 }

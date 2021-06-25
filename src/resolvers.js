@@ -1,48 +1,48 @@
 module.exports = {
   Query: {
     pokemon: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.findPokemon({ id }),
+      dataSources.postgresDB.findPokemon({ id }),
     pokemonPartial: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.findPokemonPartial({ id }),
+      dataSources.postgresDB.findPokemonPartial({ id }),
     pokemonsInRange: async (_, { firstId, lastId }, { dataSources }, __) =>
-      dataSources.pokemonDB.pokemonsInRange({ firstId, lastId }),
+      dataSources.postgresDB.pokemonsInRange({ firstId, lastId }),
     pokemonByTypeId: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.findPokemonsByTypeId({ id }),
+      dataSources.postgresDB.findPokemonsByTypeId({ id }),
     pokemonSprites: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getPokemonSprites({ id }),
+      dataSources.postgresDB.getPokemonSprites({ id }),
     pokemonEvolveChain: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getPokemonEvolveChain({ id }),
+      dataSources.postgresDB.getPokemonEvolveChain({ id }),
     abilityById: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getAbilityById({ id }),
+      dataSources.postgresDB.getAbilityById({ id }),
     getStatsByPokemonId: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getStatsById({ id }),
+      dataSources.postgresDB.getStatsById({ id }),
     pokemonsByAbilityId: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getPokemonByAbilityId({ id }),
+      dataSources.postgresDB.getPokemonByAbilityId({ id }),
     getAllAbilities: async (_, __, { dataSources }, ___) =>
-      dataSources.pokemonDB.getAllAbilities(),
+      dataSources.postgresDB.getAllAbilities(),
     getPokemonPokedexEntries: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.pokemonPokedexEntries({ id }),
+      dataSources.postgresDB.pokemonPokedexEntries({ id }),
     moveById: async (_, { id }, { dataSources }, __) =>
-      dataSources.pokemonDB.getMoveById({ id }),
+      dataSources.postgresDB.getMoveById({ id }),
     movesByPokemonAndVersion: async (
       _,
       { pokemonId, versionId },
       { dataSources },
       __
     ) =>
-      dataSources.pokemonDB.getMovesByPokemonAndVersion({
+      dataSources.postgresDB.getMovesByPokemonAndVersion({
         pokemonId,
         versionId,
       }),
     getAllMoves: async (_, __, { dataSources }, ___) =>
-      dataSources.pokemonDB.getAllMoves(),
+      dataSources.postgresDB.getAllMoves(),
     pokemonsByMoveAndVersionGroup: async (
       _,
       { moveId, versionGroupId },
       { dataSources },
       __
     ) =>
-      dataSources.pokemonDB.getPokemonsByMoveAndVersionGroup({
+      dataSources.postgresDB.getPokemonsByMoveAndVersionGroup({
         moveId,
         versionGroupId,
       }),
@@ -52,7 +52,7 @@ module.exports = {
       { dataSources },
       __
     ) =>
-      dataSources.pokemonDB.getEncountersByPokemonAndVersion({
+      dataSources.postgresDB.getEncountersByPokemonAndVersion({
         pokemonId,
         versionId,
       }),
@@ -62,9 +62,11 @@ module.exports = {
       { dataSources },
       __
     ) =>
-      dataSources.pokemonDB.getEncountersByLocationAndVersion({
+      dataSources.postgresDB.getEncountersByLocationAndVersion({
         locationId,
         versionId,
       }),
+    user: async (_, { id }, { dataSources }, __) =>
+      dataSources.postgresDB.getUser({ id }),
   },
 }
