@@ -1,5 +1,6 @@
 require("dotenv").config()
 const { Sequelize, DataTypes } = require("sequelize")
+const jsonwebtoken = require("jsonwebtoken")
 
 function getIdFromURL(url) {
   const url_ = url.slice(0, -1) // removing the last character of the url (it's always "/")
@@ -18,10 +19,22 @@ function parse(str, separator) {
   return str.split(separator)
 }
 
+const getUser = (token) => {
+  try {
+    if (token) {
+      return jsonwebtoken.verify(token, process.env.JWT_SECRET)
+    }
+    return null
+  } catch (error) {
+    return null
+  }
+}
+
 module.exports = {
-  getIdFromURL: getIdFromURL,
-  isEmptyArray: isEmptyArray,
-  parse: parse,
+  getIdFromURL,
+  isEmptyArray,
+  parse,
+  getUser,
 }
 
 module.exports.createStore = () => {
@@ -516,6 +529,36 @@ module.exports.createStore = () => {
     },
   })
 
+  const users = db.define("users", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+      allowNull: false,
+    },
+    identifier: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    mail: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_salt: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_hash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date_joined: {
+      type: DataTypes.DATE,
+      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      allowNull: false,
+    },
+  })
+
   return {
     db,
     pokemon,
@@ -535,5 +578,6 @@ module.exports.createStore = () => {
     encounter_slots,
     location_areas,
     locations,
+    users,
   }
 }

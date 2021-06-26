@@ -2,6 +2,8 @@ const { DataSource } = require("apollo-datasource")
 const { parse, isEmptyArray } = require("../utils")
 const { Op } = require("sequelize")
 const _ = require("lodash")
+const bcrypt = require("bcryptjs")
+const jsonwebtoken = require("jsonwebtoken")
 
 const NB_POKEMON = 807
 const NB_TYPES = 18
@@ -12,10 +14,20 @@ const NB_VERSION_GROUP = 18
 const NB_LOCATIONS = 798
 const NB_VERSIONS = 30
 
-class pokemonDB extends DataSource {
+class postgresDB extends DataSource {
   constructor({ store }) {
     super()
     this.store = store
+  }
+
+  /**
+   * This is a function that gets called by ApolloServer when being setup.
+   * This function gets called with the datasource config including things
+   * like caches and context. We'll assign this.context to the request context
+   * here, so we can know about the user making requests
+   */
+  initialize(config) {
+    this.context = config.context
   }
 
   async findPokemonPartial({ id }) {
@@ -117,6 +129,7 @@ class pokemonDB extends DataSource {
       where: {
         [Op.or]: [{ type_1: id }, { type_2: id }],
       },
+      order: [["id", "ASC"]],
     })
 
     return pokemons
@@ -227,8 +240,10 @@ class pokemonDB extends DataSource {
   }
 
   /* select id, identifier,... from pokemon where
-  abilities LIKE 'id%' OR abilities LIKE '%,id,%' OR
-  abilities LIKE '%,id' or abilites = 'id;*/
+  abilities LIKE 'id%' 
+  OR abilities LIKE '%,id,%'
+  OR abilities LIKE '%,id'
+  OR abilites = 'id;*/
   async getPokemonByAbilityId({ id }) {
     if (id > NB_ABILITIES) {
       return null
@@ -676,6 +691,107 @@ class pokemonDB extends DataSource {
       return a.location.location_area - b.location.location_area
     })
   }
+
+  async findOrCreateUser({ id: idArg } = {}) {
+    const id = this.context && this.context.user ? this.context.user.id : idArg
+    if (!id) {
+      return null
+    }
+    const users = await this.store.users.findOrCreate({ where: { id } })
+    return users[0].dataValues
+  }
+
+  async getUser({ id }) {
+    let user = await this.store.users.findOne({
+      attributes: [
+        "id",
+        "identifier",
+        "mail",
+        "password_salt",
+        "password_hash",
+        "date_joined",
+      ],
+      where: { id: id },
+    })
+
+    let date =
+      user.dataValues.date_joined.toLocaleDateString() +
+      " " +
+      user.dataValues.date_joined.toLocaleTimeString()
+    return { ...user.dataValues, date_joined: date }
+  }
+
+  async registerUser({ identifier, mail, password }) {
+    try {
+      const salt = await bcrypt.genSalt(10)
+
+      const user = await this.store.users.create({
+        identifier,
+        mail,
+        password_hash: await bcrypt.hash(password, salt),
+        password_salt: salt,
+      })
+
+      let date =
+        user.dataValues.date_joined.toLocaleDateString() +
+        " " +
+        user.dataValues.date_joined.toLocaleTimeString("fr-FR")
+
+      const token = jsonwebtoken.sign(
+        { id: user.id, identifier: user.identifier },
+        process.env.JWT_SECRET,
+        { expiresIn: "1y" }
+      )
+
+      return {
+        token: token,
+        user: {
+          id: user.id,
+          identifier: user.identifier,
+          mail: user.mail,
+          password_hash: user.password_hash,
+          password_salt: user.password_salt,
+          date_joined: date,
+        },
+      } /* AuthPayload*/
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async login({ identifier, password }) {
+    try {
+      const user = await this.store.users.findOne({
+        where: { identifier },
+      })
+      if (!user) {
+        throw new Error("No user with that email")
+      }
+
+      let date =
+        user.dataValues.date_joined.toLocaleDateString() +
+        " " +
+        user.dataValues.date_joined.toLocaleTimeString("fr-FR")
+
+      const isValid = await bcrypt.compare(
+        password,
+        user.dataValues.password_hash
+      )
+      if (!isValid) {
+        throw new Error("Incorrect password")
+      }
+
+      const token = jsonwebtoken.sign(
+        { id: user.id, identifier: user.identifier },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      )
+
+      return { token: token, user: { ...user.dataValues, date_joined: date } }
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
 }
 
-module.exports = pokemonDB
+module.exports = postgresDB

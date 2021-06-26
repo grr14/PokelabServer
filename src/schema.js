@@ -20,6 +20,18 @@ typeDefs = gql`
     pokemonsByMoveAndVersionGroup(moveId: Int, versionGroupId: Int): [Pokemon]
     encountersByPokemonAndVersion(pokemonId: Int, versionId: Int): [Encounter]
     encountersByLocationAndVersion(locationId: Int, versionId: Int): [Encounter]
+    me: User
+    user(id: Int!): User
+    allUsers: [User!]!
+  }
+
+  type Mutation {
+    registerUser(
+      identifier: String!
+      mail: String!
+      password: String!
+    ): AuthPayload!
+    login(identifier: String!, password: String!): AuthPayload!
   }
 
   type Pokemon {
@@ -154,6 +166,20 @@ typeDefs = gql`
     region: Int
     identifier: String
     location_area: LocationArea
+  }
+
+  type User {
+    id: Int!
+    identifier: String!
+    mail: String
+    password_salt: String
+    password_hash: String
+    date_joined: String
+  }
+
+  type AuthPayload {
+    token: String!
+    user: User!
   }
 `
 module.exports = typeDefs
