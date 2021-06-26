@@ -66,6 +66,8 @@ module.exports = {
         locationId,
         versionId,
       }),
+    me: async (_, __, { dataSources }, ___) =>
+      dataSources.postgresDB.findOrCreateUser(),
     user: async (_, { id }, { dataSources }, __) =>
       dataSources.postgresDB.getUser({ id }),
   },

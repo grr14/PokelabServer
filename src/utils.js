@@ -1,5 +1,6 @@
 require("dotenv").config()
 const { Sequelize, DataTypes } = require("sequelize")
+const jsonwebtoken = require("jsonwebtoken")
 
 function getIdFromURL(url) {
   const url_ = url.slice(0, -1) // removing the last character of the url (it's always "/")
@@ -18,10 +19,22 @@ function parse(str, separator) {
   return str.split(separator)
 }
 
+const getUser = (token) => {
+  try {
+    if (token) {
+      return jsonwebtoken.verify(token, process.env.JWT_SECRET)
+    }
+    return null
+  } catch (error) {
+    return null
+  }
+}
+
 module.exports = {
-  getIdFromURL: getIdFromURL,
-  isEmptyArray: isEmptyArray,
-  parse: parse,
+  getIdFromURL,
+  isEmptyArray,
+  parse,
+  getUser,
 }
 
 module.exports.createStore = () => {

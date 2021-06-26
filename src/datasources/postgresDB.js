@@ -20,6 +20,16 @@ class postgresDB extends DataSource {
     this.store = store
   }
 
+  /**
+   * This is a function that gets called by ApolloServer when being setup.
+   * This function gets called with the datasource config including things
+   * like caches and context. We'll assign this.context to the request context
+   * here, so we can know about the user making requests
+   */
+  initialize(config) {
+    this.context = config.context
+  }
+
   async findPokemonPartial({ id }) {
     if (id < 0 || id > NB_POKEMON) return null
 
@@ -682,6 +692,15 @@ class postgresDB extends DataSource {
     })
   }
 
+  async findOrCreateUser({ id: idArg } = {}) {
+    const id = this.context && this.context.user ? this.context.user.id : idArg
+    if (!id) {
+      return null
+    }
+    const users = await this.store.users.findOrCreate({ where: { id } })
+    return users[0].dataValues
+  }
+
   async getUser({ id }) {
     let user = await this.store.users.findOne({
       attributes: [
@@ -705,18 +724,13 @@ class postgresDB extends DataSource {
   async registerUser({ identifier, mail, password }) {
     try {
       const salt = await bcrypt.genSalt(10)
-      /*console.log(`identifier=${identifier}`)
-      console.log(`mail=${mail}`)
-      console.log(`password=${password}`)
-      console.log(`salt=${salt}`)*/
+
       const user = await this.store.users.create({
         identifier,
         mail,
         password_hash: await bcrypt.hash(password, salt),
         password_salt: salt,
       })
-
-      //console.log(user.dataValues)
 
       let date =
         user.dataValues.date_joined.toLocaleDateString() +
@@ -728,8 +742,6 @@ class postgresDB extends DataSource {
         process.env.JWT_SECRET,
         { expiresIn: "1y" }
       )
-
-      console.log(token)
 
       return {
         token: token,
@@ -760,11 +772,6 @@ class postgresDB extends DataSource {
         user.dataValues.date_joined.toLocaleDateString() +
         " " +
         user.dataValues.date_joined.toLocaleTimeString("fr-FR")
-
-      //console.log(user.dataValues)
-
-      console.log(`password=${password}`)
-      console.log(`hash=${user.dataValues.password_hash}`)
 
       const isValid = await bcrypt.compare(
         password,

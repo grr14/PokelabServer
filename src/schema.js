@@ -20,6 +20,7 @@ typeDefs = gql`
     pokemonsByMoveAndVersionGroup(moveId: Int, versionGroupId: Int): [Pokemon]
     encountersByPokemonAndVersion(pokemonId: Int, versionId: Int): [Encounter]
     encountersByLocationAndVersion(locationId: Int, versionId: Int): [Encounter]
+    me: User
     user(id: Int!): User
     allUsers: [User!]!
   }
@@ -170,7 +171,7 @@ typeDefs = gql`
   type User {
     id: Int!
     identifier: String!
-    mail: String!
+    mail: String
     password_salt: String
     password_hash: String
     date_joined: String
